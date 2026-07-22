@@ -26,3 +26,4 @@ npm run build
 
 ## Known accepted risk
 `npm audit` reports moderate/high findings in `postcss`/`sharp`, both bundled transitively inside Next.js itself. At time of writing, Next 16.2.11 is the newest stable release and still ships these — there is no newer version to bump to yet. The CI `security-baseline` job's `npm audit` step is non-blocking for this reason.
+
