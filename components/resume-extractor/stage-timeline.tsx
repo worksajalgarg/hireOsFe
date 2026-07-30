@@ -46,7 +46,23 @@ function previewPayload(data?: Record<string, unknown>): string | null {
   }
   if (typeof data.raw_json === "string") return data.raw_json;
   if (typeof data.preview === "string") return data.preview;
-  if (typeof data.markdown_preview === "string") return data.markdown_preview;
+  if (typeof data.markdown_preview === "string") {
+    const parts = [data.markdown_preview as string];
+    const tables = data.tables_preview;
+    if (Array.isArray(tables) && tables.length > 0) {
+      parts.push(
+        "\n\n## Tables\n\n" +
+          tables
+            .filter((t): t is string => typeof t === "string")
+            .map((t, i) => `### Table ${i + 1}\n\n${t}`)
+            .join("\n\n"),
+      );
+    }
+    if (typeof data.document_json_preview === "string" && data.document_json_preview) {
+      parts.push("\n\n## DoclingDocument JSON (preview)\n\n" + data.document_json_preview);
+    }
+    return parts.join("");
+  }
   return JSON.stringify(data, null, 2);
 }
 

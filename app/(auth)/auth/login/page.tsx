@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { KeyRound } from "lucide-react";
 import { loginSchema } from "@/lib/schemas/auth";
+import { getDefaultLandingPath } from "@/lib/permissions";
 import { platformClient, setAccessToken } from "@/lib/platform-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,7 +45,7 @@ export default function LoginPage() {
       const result = await platformClient.login(values);
       setAccessToken(result.accessToken);
       document.cookie = "hireos_access_hint=1; path=/; max-age=86400; SameSite=Lax";
-      router.push("/settings/profile");
+      router.push(getDefaultLandingPath(result.user.permissions));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed");
     }
@@ -57,7 +58,8 @@ export default function LoginPage() {
       // Stub: exchange a placeholder code; real WorkOS wiring comes later
       const result = await platformClient.ssoCallback(provider, "email:admin@hireos.local");
       setAccessToken(result.accessToken);
-      router.push("/settings/profile");
+      document.cookie = "hireos_access_hint=1; path=/; max-age=86400; SameSite=Lax";
+      router.push(getDefaultLandingPath(result.user.permissions));
     } catch (err) {
       setSsoMessage(err instanceof Error ? err.message : "SSO is not available yet");
     }

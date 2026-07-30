@@ -19,12 +19,12 @@ import {
   platformClient,
   setAccessToken,
 } from "@/lib/platform-client";
+import {
+  hasAnyPermission,
+  hasPermission,
+  PERMISSIONS,
+} from "@/lib/permissions";
 import type { ResumeDetail, ResumeListItem } from "@/lib/types";
-
-function isAdmin(roleName?: string | null) {
-  if (!roleName) return false;
-  return roleName === "Admin" || roleName.toLowerCase() === "admin";
-}
 
 export function ResumeExtractorApp() {
   const router = useRouter();
@@ -55,16 +55,24 @@ export function ResumeExtractorApp() {
     retry: false,
   });
 
+  const permissions = me.data?.permissions;
+  const canReadResumes = hasAnyPermission(permissions, [
+    PERMISSIONS.RESUMES_READ,
+    PERMISSIONS.RESUMES_EXTRACT,
+  ]);
+  const canWriteResumes = hasPermission(permissions, PERMISSIONS.RESUMES_WRITE);
+  const canExtractResumes = hasPermission(permissions, PERMISSIONS.RESUMES_EXTRACT);
+
   const resumes = useQuery({
     queryKey: ["resumes"],
     queryFn: () => platformClient.listResumes(),
-    enabled: Boolean(me.data) && isAdmin(me.data?.roleName),
+    enabled: Boolean(me.data) && canReadResumes,
   });
 
   const detail = useQuery({
     queryKey: ["resumes", selectedId],
     queryFn: () => platformClient.getResume(selectedId!),
-    enabled: Boolean(selectedId) && isAdmin(me.data?.roleName),
+    enabled: Boolean(selectedId) && canReadResumes,
   });
 
   useEffect(() => {
@@ -188,24 +196,22 @@ export function ResumeExtractorApp() {
     );
   }
 
-  if (!isAdmin(me.data?.roleName)) {
+  if (!canReadResumes) {
     return (
-      <div className="mx-auto max-w-5xl space-y-3 px-4 py-16">
-        <h1 className="text-2xl font-semibold text-[var(--color-navy)]">Admin only</h1>
+      <div className="space-y-3">
+        <h1 className="text-2xl font-semibold text-[var(--color-navy)]">Access denied</h1>
         <p className="text-sm text-[var(--color-muted)]">
-          Resume Extractor is available to Admin users. Your role is{" "}
-          <span className="font-medium text-gray-800">{me.data?.roleName ?? "unknown"}</span>.
+          You do not have permission to use Resume Extractor. Contact your workspace admin
+          if you need <span className="font-medium">resumes.read</span> or{" "}
+          <span className="font-medium">resumes.extract</span> access.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6">
+    <div className="flex w-full flex-col gap-8">
       <header className="animate-fade-up space-y-2">
-        <p className="text-xs font-semibold tracking-[0.14em] text-[var(--color-muted)] uppercase">
-          HireOS · Admin
-        </p>
         <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-navy)]">
           Resume Extractor
         </h1>
@@ -262,32 +268,38 @@ export function ResumeExtractorApp() {
           <div className="space-y-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-[var(--color-border)]">
             <UploadZone
               file={file}
-              disabled={running || upload.isPending}
+              disabled={!canWriteResumes || running || upload.isPending}
               onFileChange={setFile}
             />
             <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                disabled={!file || upload.isPending || running}
-                onClick={() => file && upload.mutate(file)}
-              >
-                {upload.isPending ? "Uploading…" : "Upload to library"}
-              </Button>
-              <Button
-                type="button"
-                disabled={!selectedId || running}
-                onClick={() => void onExtract()}
-              >
-                {running ? "Extracting…" : "Extract selected"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={!selectedId || running || remove.isPending}
-                onClick={() => selectedId && remove.mutate(selectedId)}
-              >
-                Delete
-              </Button>
+              {canWriteResumes ? (
+                <Button
+                  type="button"
+                  disabled={!file || upload.isPending || running}
+                  onClick={() => file && upload.mutate(file)}
+                >
+                  {upload.isPending ? "Uploading…" : "Upload to library"}
+                </Button>
+              ) : null}
+              {canExtractResumes ? (
+                <Button
+                  type="button"
+                  disabled={!selectedId || running}
+                  onClick={() => void onExtract()}
+                >
+                  {running ? "Extracting…" : "Extract selected"}
+                </Button>
+              ) : null}
+              {canWriteResumes ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!selectedId || running || remove.isPending}
+                  onClick={() => selectedId && remove.mutate(selectedId)}
+                >
+                  Delete
+                </Button>
+              ) : null}
               {running ? (
                 <Button
                   type="button"
@@ -335,14 +347,16 @@ export function ResumeExtractorApp() {
                 >
                   Reset from extracted
                 </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={!selectedId || saveJson.isPending}
-                  onClick={onSaveEditor}
-                >
-                  {saveJson.isPending ? "Saving…" : "Save"}
-                </Button>
+                {canWriteResumes ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={!selectedId || saveJson.isPending}
+                    onClick={onSaveEditor}
+                  >
+                    {saveJson.isPending ? "Saving…" : "Save"}
+                  </Button>
+                ) : null}
               </div>
             </div>
             <textarea

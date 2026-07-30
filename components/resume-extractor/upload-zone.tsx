@@ -4,7 +4,45 @@ import { useRef, useState } from "react";
 import { FileUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ACCEPT = ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const ACCEPT_EXTENSIONS = [
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".odt",
+  ".html",
+  ".htm",
+  ".md",
+  ".markdown",
+  ".adoc",
+  ".asciidoc",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".tif",
+  ".tiff",
+  ".bmp",
+] as const;
+
+const ACCEPT = [
+  ...ACCEPT_EXTENSIONS,
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.oasis.opendocument.text",
+  "text/html",
+  "text/markdown",
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/tiff",
+  "image/bmp",
+].join(",");
+
+function isAllowedResume(file: File): boolean {
+  const name = file.name.toLowerCase();
+  return ACCEPT_EXTENSIONS.some((ext) => name.endsWith(ext));
+}
 
 type UploadZoneProps = {
   file: File | null;
@@ -21,8 +59,7 @@ export function UploadZone({ file, disabled, onFileChange }: UploadZoneProps) {
       onFileChange(null);
       return;
     }
-    const name = next.name.toLowerCase();
-    if (!name.endsWith(".pdf") && !name.endsWith(".docx")) {
+    if (!isAllowedResume(next)) {
       return;
     }
     onFileChange(next);
@@ -51,7 +88,9 @@ export function UploadZone({ file, disabled, onFileChange }: UploadZoneProps) {
         <p className="text-sm font-semibold text-[var(--color-navy)]">
           Drop a resume or click to browse
         </p>
-        <p className="mt-1 text-xs text-[var(--color-muted)]">PDF or DOCX, up to 10MB</p>
+        <p className="mt-1 text-xs text-[var(--color-muted)]">
+          PDF, DOC, DOCX, ODT, HTML, Markdown, or image · up to 10MB
+        </p>
       </div>
       {file ? (
         <p className="rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700">
