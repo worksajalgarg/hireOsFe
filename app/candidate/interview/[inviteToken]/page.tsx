@@ -5,10 +5,12 @@ import { useParams } from "next/navigation";
 import {
   LiveKitRoom,
   RoomAudioRenderer,
+  VideoTrack,
   useConnectionState,
+  useTracks,
   useVoiceAssistant,
 } from "@livekit/components-react";
-import { ConnectionState } from "livekit-client";
+import { ConnectionState, Track } from "livekit-client";
 import { Button } from "@/components/ui/button";
 import { platformClient } from "@/lib/platform-client";
 import type { JoinInterviewResponse } from "@/lib/types";
@@ -30,9 +32,10 @@ export default function CandidateInterviewRoomPage() {
   async function handleJoin() {
     setScreen({ step: "connecting" });
     try {
-      // Fail fast with a clear message if the browser/OS denies mic access,
-      // rather than letting LiveKit's connect-then-publish surface a vaguer error.
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Fail fast with a clear message if the browser/OS denies mic/camera
+      // access, rather than letting LiveKit's connect-then-publish surface a
+      // vaguer error.
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
       stream.getTracks().forEach((track) => track.stop());
 
       const session = await platformClient.joinInterview(inviteToken);
@@ -50,9 +53,9 @@ export default function CandidateInterviewRoomPage() {
       <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-12">
         <h1 className="text-2xl font-semibold">AI Voice Interview</h1>
         <p className="mt-3 text-sm text-white/70">
-          This interview is conducted by an AI voice interviewer. Your responses are recorded for
-          human review — the recording does not affect your evaluation on its own, and a human
-          always makes the final decision on your application.
+          This interview is conducted by an AI voice interviewer. Your video and audio are
+          recorded for human review — the recording does not affect your evaluation on its own,
+          and a human always makes the final decision on your application.
         </p>
         <label className="mt-6 flex items-start gap-3 text-sm text-white/90">
           <input
@@ -61,7 +64,8 @@ export default function CandidateInterviewRoomPage() {
             onChange={(e) => setConsented(e.target.checked)}
             className="mt-1 h-4 w-4"
           />
-          I consent to this AI-conducted interview being recorded for hiring evaluation.
+          I consent to this AI-conducted interview being recorded (video and audio) for hiring
+          evaluation.
         </label>
         <Button
           className="mt-8"
@@ -105,7 +109,7 @@ export default function CandidateInterviewRoomPage() {
       token={screen.session.token}
       connect
       audio
-      video={false}
+      video
       onDisconnected={() => setScreen({ step: "ended" })}
       onError={(err) => setScreen({ step: "error", message: err.message })}
       className="min-h-screen"
@@ -118,15 +122,27 @@ export default function CandidateInterviewRoomPage() {
 function InterviewRoom() {
   const connectionState = useConnectionState();
   const { state: agentState } = useVoiceAssistant();
+  // Self-view only — the agent has no camera track (see worker.py's
+  // AutoSubscribe.AUDIO_ONLY), so there is nothing to render for "the other
+  // side." Never add a face/emotion overlay here.
+  const cameraTracks = useTracks([Track.Source.Camera]);
+  const localCameraTrack = cameraTracks.find((t) => t.participant.isLocal);
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-6 py-12 text-center">
       <RoomAudioRenderer />
-      <div
-        className="h-24 w-24 rounded-full bg-[var(--color-navy-hover)] transition-transform"
-        style={{ transform: agentState === "speaking" ? "scale(1.08)" : "scale(1)" }}
-        aria-hidden
-      />
+      {localCameraTrack ? (
+        <VideoTrack
+          trackRef={localCameraTrack}
+          className="h-48 w-36 rounded-2xl object-cover"
+        />
+      ) : (
+        <div
+          className="h-24 w-24 rounded-full bg-[var(--color-navy-hover)] transition-transform"
+          style={{ transform: agentState === "speaking" ? "scale(1.08)" : "scale(1)" }}
+          aria-hidden
+        />
+      )}
       <p className="text-sm text-white/70">{describeState(connectionState, agentState)}</p>
       <InterviewControls />
     </main>

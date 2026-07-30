@@ -2,7 +2,17 @@
 
 import { useState } from "react";
 import { useLocalParticipant, useRoomContext } from "@livekit/components-react";
-import { HelpCircle, Mic, MicOff, Pause, Play, PhoneOff, RotateCcw } from "lucide-react";
+import {
+  HelpCircle,
+  Mic,
+  MicOff,
+  Pause,
+  Play,
+  PhoneOff,
+  RotateCcw,
+  Video,
+  VideoOff,
+} from "lucide-react";
 import type { Room } from "livekit-client";
 import { Button } from "@/components/ui/button";
 
@@ -15,7 +25,7 @@ function sendControlMessage(room: Room, action: ControlAction) {
 
 export function InterviewControls() {
   const room = useRoomContext();
-  const { isMicrophoneEnabled } = useLocalParticipant();
+  const { isMicrophoneEnabled, isCameraEnabled } = useLocalParticipant();
   const [paused, setPaused] = useState(false);
 
   function togglePause() {
@@ -33,6 +43,14 @@ export function InterviewControls() {
       >
         {isMicrophoneEnabled ? <Mic size={16} /> : <MicOff size={16} />}
         {isMicrophoneEnabled ? "Mute" : "Unmute"}
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => room.localParticipant.setCameraEnabled(!isCameraEnabled)}
+      >
+        {isCameraEnabled ? <Video size={16} /> : <VideoOff size={16} />}
+        {isCameraEnabled ? "Camera off" : "Camera on"}
       </Button>
       <Button variant="outline" size="sm" onClick={() => sendControlMessage(room, "repeat")}>
         <RotateCcw size={16} />
