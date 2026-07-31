@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HireOS Candidates</title>
+  <link rel="stylesheet" href="./hireos-pages.css?v=front-nav-v3" />
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand"><button class="brand-mark sidebar-logo-toggle" aria-label="HireOS" title="HireOS">H</button><div class="brand-copy"><strong>HireOS</strong><span>AI Hiring Operating System</span></div><button class="icon-button sidebar-toggle" aria-label="收起侧边栏" title="收起侧边栏"><i data-lucide="panel-left-close"></i></button></div>
+      <div class="nav-section">Operate</div>
+      <nav class="nav">
+        <a class="nav-item" href="./hireos-dashboard-design.html"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+        <a class="nav-item" href="./hireos-tasks.html"><i data-lucide="list-checks"></i><span>Tasks</span><span class="count">4</span></a>
+        <a class="nav-item" href="./hireos-jobs.html"><i data-lucide="briefcase-business"></i><span>Jobs</span><span class="count">12</span></a>
+      </nav>
+      <div class="sidebar-footer"><div class="user-status" role="button" tabindex="0" aria-expanded="false"><div class="avatar">LT</div><div class="user-copy"><strong>Linh Tran</strong><span><b></b> Online · HR Lead</span></div><button class="account-toggle" aria-label="账户菜单" title="账户菜单"><i data-lucide="chevron-up"></i></button></div><div class="account-menu"><button type="button"><i data-lucide="user-round"></i> Profile</button><button type="button"><i data-lucide="bell"></i> Notifications</button><div class="language-switch" aria-label="语言切换"><span>Language</span><div><button class="active" type="button">EN</button><button type="button">中文</button></div></div><button type="button"><i data-lucide="log-out"></i> Sign out</button></div></div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="page-title"><h1>Candidates</h1><p>邮件解析后的最小候选人确认、去重和 Application 关联。候选人不是独立人才库。</p></div>
+        <div class="top-actions"><a class="ghost-button" href="./hireos-inbox-detail.html"><i data-lucide="mail-check"></i> Review Source Email</a><button class="primary-button"><i data-lucide="check-check"></i> Resolve Next Task</button></div>
+      </header>
+      <section class="page-content">
+        <div class="hero-row">
+          <section class="hero-panel">
+            <h2>Candidates only exist here to confirm identity before work enters Applications.</h2>
+            <p>Keep the person record small: name, email, phone, location, source, CV reference, attachment reference, and summary. Job-specific progress belongs to Application.</p>
+          </section>
+          <section class="hero-panel ai">
+            <h2>Task Core contract active</h2>
+            <p>Candidate work uses `window.HireOSTasks.taskStore` from `hireos-tasks-data.js` with required task fields and only Open, In Progress, Waiting, Done, or Cancelled status.</p>
+          </section>
+        </div>
+        <section class="metric-grid" data-candidate-task-metrics>
+          <div class="metric"><div class="metric-label">Candidate Review <i data-lucide="user-check"></i></div><strong>12</strong><small>Parsed profiles need confirmation</small></div>
+          <div class="metric warning"><div class="metric-label">Duplicate Review <i data-lucide="copy-check"></i></div><strong>3</strong><small>Email, name, or source evidence match</small></div>
+          <div class="metric warning"><div class="metric-label">Missing Info <i data-lucide="file-question"></i></div><strong>5</strong><small>Phone, CV, or source is incomplete</small></div>
+          <div class="metric"><div class="metric-label">Linked Applications <i data-lucide="kanban-square"></i></div><strong>28</strong><small>Candidate identity confirmed first</small></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div><h2>Task Source Queue</h2><p>Candidate tasks created from Inbox parsing before Application write-back</p></div>
+            <div class="tabs"><button class="tab active">Open</button><button class="tab">In Progress</button><button class="tab">Waiting</button></div>
+          </div>
+          <div class="toolbar"><div class="search"><i data-lucide="search"></i> Search name, email, phone, source</div><span class="chip green"><i data-lucide="sparkles"></i> Evidence-first dedup</span></div>
+          <div class="table candidate-task-table" data-candidate-task-queue>
+            <div class="table-row header"><span>Task</span><span>Candidate</span><span>Status</span><span>Owner</span><span>Due</span><span>Completion Action</span></div>
+            <div class="table-row">
+              <div class="cell-main"><strong>Candidate Review</strong><span>From agency email · CV_Quang_Backend.pdf</span></div>
+              <div class="cell-main"><strong>Quang Do</strong><span>quang.do@agency.vn · +84 912 300 882 · Ho Chi Minh</span></div>
+              <span class="pill">Open</span>
+              <span>Linh Tran</span>
+              <span class="pill danger">Today</span>
+              <span>Confirm New Candidate or Link Existing Candidate</span>
+            </div>
+            <div class="table-row">
+              <div class="cell-main"><strong>Duplicate Review</strong><span>Source email includes forwarded CV and prior thread</span></div>
+              <div class="cell-main"><strong>Quang Do</strong><span>Phone + name evidence · source differs</span></div>
+              <span class="pill green">In Progress</span>
+              <span>Linh Tran</span>
+              <span class="pill danger">Today</span>
+              <span>Merge Candidate or Link Existing Candidate</span>
+            </div>
+            <div class="table-row">
+              <div class="cell-main"><strong>Missing Candidate Info</strong><span>Parsed from inbound CV without phone number</span></div>
+              <div class="cell-main"><strong>Lan Pham</strong><span>lan.pham@mail.vn · no phone · Hanoi</span></div>
+              <span class="pill warn">Waiting</span>
+              <span>Mai Ho</span>
+              <span class="pill warn">Tomorrow</span>
+              <span>Confirm New Candidate or Mark Not Fit for Current Job</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <section class="panel">
+            <div class="panel-header"><div><h2>Minimal Candidate Profile</h2><p>Only identity and evidence fields needed for downstream Applications</p></div></div>
+            <div class="candidate-profile-card">
+              <div class="profile-head">
+                <div class="person-row"><div class="avatar">QD</div><div class="cell-main"><strong>Quang Do</strong><span>quang.do@agency.vn · +84 912 300 882</span></div></div>
+                <span class="pill warn">Review</span>
+              </div>
+              <div class="field-grid">
+                <div><span>Name</span><strong>Quang Do</strong></div>
+                <div><span>Email</span><strong>quang.do@agency.vn</strong></div>
+                <div><span>Phone</span><strong>+84 912 300 882</strong></div>
+                <div><span>Location</span><strong>Ho Chi Minh City</strong></div>
+                <div><span>Source</span><strong>Agency forwarded email</strong></div>
+                <div><span>CV / Attachment</span><strong>CV_Quang_Backend.pdf</strong></div>
+              </div>
+              <div class="summary-box"><span>Summary</span><p>Backend engineer with Node.js, PostgreSQL, and cloud operations experience. Parsed from agency message; source email preserved for reviewer decision.</p></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h2>Duplicate Evidence</h2><p>Simple prompts, not automatic merges</p></div></div>
+            <div class="cards">
+              <div class="work-card ai">
+                <div class="card-top"><div class="card-copy"><strong>Existing Candidate: Q. Do</strong><span>Same phone number, similar name, previous Backend application</span></div><span class="pill warn">72%</span></div>
+                <div class="evidence-tags"><span>Email differs</span><span>Name fuzzy match</span><span>Source: agency</span></div>
+              </div>
+              <div class="work-card">
+                <div class="card-top"><div class="card-copy"><strong>Existing Application History</strong><span>Backend Engineer · 2025 · rejected because seniority was too low for that role</span></div><span class="pill">Past</span></div>
+              </div>
+              <div class="work-card">
+                <div class="card-top"><div class="card-copy"><strong>Merge risk</strong><span>Wrong merge would attach a Platform Engineer CV to the wrong Application timeline.</span></div><span class="pill danger">Human only</span></div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="content-grid">
+          <section class="panel">
+            <div class="panel-header"><div><h2>Resolution Actions</h2><p>Task handling actions available to the responsible owner</p></div></div>
+            <div class="action-grid">
+              <button type="button"><i data-lucide="user-plus"></i><strong>Confirm New Candidate</strong><span>Create a new minimal Candidate and queue job match review.</span></button>
+              <button type="button"><i data-lucide="git-merge"></i><strong>Merge Candidate</strong><span>Combine records only after evidence is accepted by HR.</span></button>
+              <button type="button"><i data-lucide="link"></i><strong>Link Existing Candidate</strong><span>Attach this email and CV to an existing Candidate record.</span></button>
+              <button type="button"><i data-lucide="circle-slash"></i><strong>Mark Not Fit for Current Job</strong><span>Keep candidate identity but do not create this Application.</span></button>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-header"><div><h2>Application Write-back</h2><p>What becomes available to Applications after resolution</p></div></div>
+            <div class="timeline">
+              <div class="timeline-row"><time>1</time><div class="cell-main"><strong>Candidate confirmed</strong><span>Person identity locked with source email and CV attachment reference</span></div><span class="pill green">Required</span></div>
+              <div class="timeline-row"><time>2</time><div class="cell-main"><strong>Application linked</strong><span>Candidate + Platform Engineer + owner + next action</span></div><span class="pill warn">If fit</span></div>
+              <div class="timeline-row"><time>3</time><div class="cell-main"><strong>Status stays lightweight</strong><span>Assigned, Unassigned, and Rejected remain filters or states only</span></div><span class="pill">No pool module</span></div>
+            </div>
+          </section>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header"><div><h2>Candidate Application History</h2><p>Association history is preserved without turning Candidates into a CRM</p></div></div>
+          <div class="table candidate-history-table">
+            <div class="table-row header"><span>Candidate</span><span>Application</span><span>Source Evidence</span><span>Result</span><span>Status Filter</span></div>
+            <a class="table-row" href="./hireos-application-detail.html"><div class="person-row"><div class="avatar">TN</div><div class="cell-main"><strong>Trang Nguyen</strong><span>trang.nguyen@mail.vn</span></div></div><span>Senior Backend Engineer</span><span>Recruiting inbox · 3 CV attachments</span><span>Application active</span><span class="pill green">Assigned</span></a>
+            <div class="table-row"><div class="person-row"><div class="avatar">QD</div><div class="cell-main"><strong>Quang Do</strong><span>quang.do@agency.vn</span></div></div><span>Platform Engineer</span><span>Agency forward · duplicate review</span><span>Waiting for task resolution</span><span class="pill warn">Unassigned</span></div>
+            <div class="table-row"><div class="person-row"><div class="avatar">AL</div><div class="cell-main"><strong>Anh Le</strong><span>anh.le@design.vn</span></div></div><span>Product Designer</span><span>Referral email · portfolio link</span><span>Not fit for current job</span><span class="pill danger">Rejected</span></div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <aside class="agent" aria-label="Agent 对话区">
+      <header class="agent-header"><div class="agent-title"><div class="agent-orb"><i data-lucide="sparkles"></i></div><div><strong>Candidate Agent</strong><span>Task source and dedup</span></div></div><button class="icon-button agent-toggle" aria-label="收起 Agent" title="收起 Agent"><i data-lucide="panel-right-close"></i></button></header>
+      <div class="agent-body">
+        <section class="agent-card ai">
+          <h3>Recommended task action</h3>
+          <p>Open Duplicate Review for Quang Do. Link to the existing Candidate if HR accepts the phone and name evidence; otherwise confirm a new Candidate and keep both Application histories separate.</p>
+          <div class="evidence-list">
+            <div class="evidence-item"><span>Task Type</span><strong>Duplicate Review</strong></div>
+            <div class="evidence-item"><span>Evidence</span><strong>Email differs; phone matches; source is agency-forwarded CV.</strong></div>
+            <div class="evidence-item"><span>Application Impact</span><strong>Do not create Platform Application until identity is resolved.</strong></div>
+          </div>
+          <div class="agent-actions"><button class="approve">Link Existing</button><button class="review">Open Task</button></div>
+        </section>
+      </div>
+      <footer class="agent-compose"><div class="compose-box"><input aria-label="向 Agent 提问" placeholder="Ask about candidate tasks..." /><button class="icon-button" aria-label="发送"><i data-lucide="send-horizontal"></i></button></div></footer>
+    </aside>
+    <div class="agent-dock" aria-label="Agent 快捷输入">
+      <button class="agent-dock-bar" type="button"><i data-lucide="sparkles"></i><span>Ask HireOS Agent about this page...</span><i data-lucide="send-horizontal"></i></button>
+      <div class="agent-dock-prompts"><button type="button">Summarize risks</button><button type="button">Suggest next action</button><button type="button">Show evidence gaps</button></div>
+    </div>
+  </div>
+  <script src="./hireos-tasks-data.js"></script>
+  <script>window.HireOSCandidateTaskStore = window.HireOSTasks.taskStore;</script>
+  <script src="./hireos-pages.js?v=front-nav-v3"></script>
+</body>
+</html>

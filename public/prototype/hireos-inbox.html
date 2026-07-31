@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HireOS Inbox</title>
+  <link rel="stylesheet" href="./hireos-pages.css?v=no-inbox-nav-v1" />
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand"><button class="brand-mark sidebar-logo-toggle" aria-label="HireOS" title="HireOS">H</button><div class="brand-copy"><strong>HireOS</strong><span>AI Hiring Operating System</span></div><button class="icon-button sidebar-toggle" aria-label="收起侧边栏" title="收起侧边栏"><i data-lucide="panel-left-close"></i></button></div>
+      <div class="nav-section">Operate</div>
+      <nav class="nav">
+        <a class="nav-item" href="./hireos-dashboard-design.html"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+        <a class="nav-item" href="./hireos-tasks.html"><i data-lucide="list-checks"></i><span>Tasks</span><span class="count">4</span></a>
+        <a class="nav-item" href="./hireos-settings.html"><i data-lucide="settings"></i><span>Settings</span></a>
+      </nav>
+      <div class="sidebar-footer"><div class="user-status" role="button" tabindex="0" aria-expanded="false"><div class="avatar">LT</div><div class="user-copy"><strong>Linh Tran</strong><span><b></b> Online · HR Lead</span></div><button class="account-toggle" aria-label="账户菜单" title="账户菜单"><i data-lucide="chevron-up"></i></button></div><div class="account-menu"><button type="button"><i data-lucide="user-round"></i> Profile</button><button type="button"><i data-lucide="bell"></i> Notifications</button><div class="language-switch" aria-label="语言切换"><span>Language</span><div><button class="active" type="button">EN</button><button type="button">中文</button></div></div><button type="button"><i data-lucide="log-out"></i> Sign out</button></div></div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="page-title"><h1>Inbox</h1><p>邮件录入、候选人资料审核、低置信度岗位匹配和异常转任务的统一入口。</p></div>
+        <div class="top-actions"></div>
+      </header>
+      <section class="page-content">
+        <section class="panel mailbox-state-panel" data-mailbox-state="disconnected">
+          <div class="panel-header">
+            <div><h2>招聘邮箱未连接</h2><p>Inbox 需要先绑定招聘邮箱，才能读取邮件并生成后续任务。</p></div>
+            <button class="primary-button" type="button" data-mail-connect-open data-mailbox-bind-open><i data-lucide="mail-plus"></i> 连接招聘邮箱</button>
+          </div>
+          <p class="task-context" data-mailbox-feedback>当前使用本地连接模拟；未接入真实 Gmail 或 Outlook API。</p>
+        </section>
+        <section class="panel mailbox-state-panel is-hidden" data-mailbox-state="connected">
+          <div class="panel-header">
+            <div><h2>招聘邮箱已连接</h2><p>Inbox 可以读取模拟邮件队列，并把异常转成招聘任务。</p></div>
+            <span class="pill green">Connected</span>
+          </div>
+          <div class="object-list">
+            <span class="object-chip">Inbox Review</span>
+            <span class="object-chip">Candidate Review</span>
+            <span class="object-chip">Duplicate Review</span>
+          </div>
+        </section>
+        <section class="metric-grid is-hidden" data-inbox-readable>
+          <div class="metric"><div class="metric-label">Email Intake <i data-lucide="mail-open"></i></div><strong>48</strong><small>Threads need structure</small></div>
+          <div class="metric"><div class="metric-label">Candidate Reviews <i data-lucide="badge-check"></i></div><strong>5</strong><small>Profiles needing HR review</small></div>
+          <div class="metric"><div class="metric-label">Job Match Reviews <i data-lucide="clipboard-check"></i></div><strong>7</strong><small>Applications needing match review</small></div>
+          <div class="metric warning"><div class="metric-label">Blocked <i data-lucide="octagon-alert"></i></div><strong>9</strong><small>Owner, SLA, or evidence gap</small></div>
+        </section>
+        <section class="panel is-hidden" data-inbox-readable data-inbox-candidate-review-entry>
+          <div class="panel-header">
+            <div><h2>Candidate Material Review</h2><p>Email, resume evidence, parsed fields, profile completeness, and job link judgment share one review state.</p></div>
+            <span class="pill warn" data-inbox-review-status>Needs Review</span>
+          </div>
+          <section class="content-grid">
+            <div class="detail-stack">
+              <div class="table compact" data-inbox-candidate-material></div>
+              <div class="table compact" data-inbox-parsed-fields></div>
+              <div class="table compact" data-inbox-evidence-links></div>
+            </div>
+            <div class="detail-stack">
+              <div class="table compact" data-inbox-shared-state></div>
+              <div class="table compact" data-inbox-exception-payload></div>
+              <div class="action-result" data-inbox-action-result>
+                <strong>Ready for review</strong>
+                <span>Select an HR action to write Candidate/Application review state.</span>
+              </div>
+              <div class="agent-actions task-action-row">
+                <button class="approve" type="button" data-inbox-review-action="confirm_complete"><i data-lucide="check"></i> Confirm complete</button>
+                <button class="review" type="button" data-inbox-review-action="mark_missing_info"><i data-lucide="file-question"></i> Missing info</button>
+                <button class="review" type="button" data-inbox-review-action="mark_parse_failed"><i data-lucide="scan-line"></i> Parse failed</button>
+                <button class="review" type="button" data-inbox-review-action="mark_job_unclear"><i data-lucide="route"></i> Job uncertain</button>
+                <button class="review" type="button" data-inbox-review-action="mark_potential_duplicate"><i data-lucide="copy-check"></i> Possible duplicate</button>
+              </div>
+            </div>
+          </section>
+        </section>
+        <section class="unframed-section is-hidden" data-inbox-readable>
+          <div class="panel-header">
+            <div><h2>统一工作队列</h2><p>邮箱连接后，邮件读取结果进入一个运营待办箱</p></div>
+          </div>
+          <div class="secondary-tabs">
+            <button class="secondary-tab active" data-inbox-work-tab="sync"><i data-lucide="refresh-cw"></i> 同步状态</button>
+            <button class="secondary-tab" data-inbox-work-tab="mailboxes"><i data-lucide="mail-plus"></i> 关联邮箱</button>
+          </div>
+          <div data-inbox-work-panel="sync">
+            <div class="table sync-table">
+              <div class="table-row header"><span>Sync</span><span>Email</span><span>Type</span><span>Task mapping</span><span>Result</span></div>
+              <div class="table-row"><span>10:42</span><div class="cell-main"><strong>Trang Nguyen CV</strong><span>recruiting@company.vn</span></div><span>CV email</span><span>No task, high-confidence Application write draft</span><span class="pill green">Prepared</span></div>
+              <div class="table-row"><span>09:24</span><div class="cell-main"><strong>Agency-forwarded profile</strong><span>agency-intake@company.vn</span></div><span>Candidate profile</span><span>Duplicate Review task created</span><span class="pill danger">Open</span></div>
+              <div class="table-row"><span>09:10</span><div class="cell-main"><strong>Mai referral</strong><span>founder forward</span></div><span>Referral</span><span>Job Match Review task created</span><span class="pill warn">Open</span></div>
+            </div>
+          </div>
+          <div class="is-hidden" data-inbox-work-panel="mailboxes">
+            <div class="mailbox-panel-head">
+              <div><h3>已关联邮箱</h3><p>管理哪些邮箱参与招聘邮件同步、AI 识别和写回规则。</p></div>
+            </div>
+            <div class="table mailbox-table">
+              <div class="table-row header"><span>邮箱</span><span>同步范围</span><span>写入规则</span><span>状态</span><span>操作</span></div>
+              <div class="table-row"><div class="cell-main"><strong>recruiting@company.vn</strong><span>主 HR 招聘邮箱</span></div><span>Inbox / CV / Assessment</span><span>高置信度自动写入</span><span class="pill green">已连接</span><div class="row-actions"><button type="button">编辑</button><button type="button">删除</button></div></div>
+              <div class="table-row"><div class="cell-main"><strong>agency-intake@company.vn</strong><span>猎头转发与补充材料</span></div><span>Agency / Forwarded</span><span>全部进入人工审核</span><span class="pill warn">需确认</span><div class="row-actions"><button type="button">编辑</button><button type="button">删除</button></div></div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <aside class="agent" aria-label="Agent 对话区"><header class="agent-header"><div class="agent-title"><div class="agent-orb"><i data-lucide="sparkles"></i></div><div><strong>Inbox Task Source</strong><span>Parse, evidence, task handoff</span></div></div><button class="icon-button agent-toggle" aria-label="收起 Agent" title="收起 Agent"><i data-lucide="panel-right-close"></i></button></header><div class="agent-body"><section class="agent-card ai"><h3>Next task to resolve</h3><p>Open the Duplicate Review task before any Candidate or Application write-back is allowed.</p><div class="evidence-list"><div class="evidence-item"><span>owner_id</span><strong>user_linh_tran</strong></div><div class="evidence-item"><span>next_action</span><strong>Review raw email and decide whether this is the existing Backend candidate or a new Platform profile.</strong></div><div class="evidence-item"><span>due_at</span><strong>2026-07-28T15:00:00+08:00</strong></div></div><div class="agent-actions"><a class="approve" href="./hireos-inbox-detail.html?task_id=task_inbox_identity_review">Open task</a><button class="review">Raw evidence</button></div></section><section class="agent-card"><h3>Task Core</h3><p>Inbox creates and displays tasks through the shared taskStore contract.</p></section></div><footer class="agent-compose"><div class="compose-box"><input aria-label="向 Agent 提问" placeholder="Ask about this intake source..." /><button class="icon-button" aria-label="发送"><i data-lucide="send-horizontal"></i></button></div></footer></aside>
+    <div class="agent-dock" aria-label="Agent 快捷输入"><button class="agent-dock-bar" type="button"><i data-lucide="sparkles"></i><span>Ask HireOS Agent about this page...</span><i data-lucide="send-horizontal"></i></button><div class="agent-dock-prompts"><button type="button">Show low-confidence tasks</button><button type="button">Open raw evidence</button><button type="button">Explain task mapping</button></div></div>
+    <div class="modal-backdrop is-hidden" data-mail-connect-modal>
+      <section class="mail-connect-modal" role="dialog" aria-modal="true" aria-labelledby="mail-connect-title">
+        <header class="modal-header">
+          <div>
+            <h2 id="mail-connect-title">连接招聘邮箱</h2>
+            <p>选择默认招聘邮箱并运行本地连接模拟。当前未接入真实 Gmail 或 Outlook API。</p>
+          </div>
+          <button class="icon-button" type="button" aria-label="关闭邮箱连接流程" title="关闭" data-mail-connect-close><i data-lucide="x"></i></button>
+        </header>
+        <div class="connect-steps mailbox-mvp-steps" aria-label="邮箱连接步骤">
+          <button class="connect-step active" type="button" data-mail-step="0"><span>1</span>邮箱类型</button>
+          <button class="connect-step" type="button" data-mail-step="1"><span>2</span>连接模拟</button>
+          <button class="connect-step" type="button" data-mail-step="2"><span>3</span>完成</button>
+        </div>
+        <div class="connect-panels">
+          <section class="connect-panel" data-mail-step-panel="0">
+            <div class="option-grid">
+              <button class="mail-provider active" type="button"><i data-lucide="mail"></i><strong>默认招聘邮箱</strong><span>recruiting@company.vn</span></button>
+              <button class="mail-provider" type="button"><i data-lucide="mailbox"></i><strong>其他邮箱类型</strong><span>本地模拟同一连接流程</span></button>
+            </div>
+            <div class="rule-note"><strong>MVP 边界</strong><span>连接入口可以来自 Tasks 或 Inbox，但状态和结果只由这一套 Mailbox Connect 模拟流程更新。</span></div>
+          </section>
+          <section class="connect-panel is-hidden" data-mail-step-panel="1">
+            <div class="permission-grid">
+              <article><strong>模拟授权</strong><span>本地确定性模拟连接成功或失败，不访问外部邮箱服务。</span></article>
+              <article><strong>读取范围</strong><span>模拟队列只覆盖招聘相关邮件：CV、面试、测评和候选人回复。</span></article>
+              <article><strong>任务联动</strong><span>成功后 Mailbox Disconnected 任务变为 Done。</span></article>
+              <article><strong>失败反馈</strong><span>如果模拟授权失败，页面保留错误提示并允许重新尝试。</span></article>
+            </div>
+            <div class="rule-note" data-mailbox-feedback><strong>连接状态</strong><span>准备运行 deterministic local simulator。</span></div>
+            <div class="inline-actions">
+              <button class="primary-button connect-oauth" type="button" data-mail-next><i data-lucide="badge-check"></i> 运行连接模拟</button>
+              <button class="ghost-button" type="button" data-mail-connect-fail><i data-lucide="circle-alert"></i> 模拟失败</button>
+            </div>
+          </section>
+          <section class="connect-panel is-hidden" data-mail-step-panel="2">
+            <div class="connect-done">
+              <div class="done-icon"><i data-lucide="check"></i></div>
+              <h3>招聘邮箱已连接</h3>
+              <p>Inbox 已切换到可读取模拟邮件状态，并显示 Inbox Review、Candidate Review、Duplicate Review 等后续任务队列。</p>
+              <div class="config-meta"><span class="pill green">Mailbox Connected</span><span class="pill">Local simulator</span><span class="pill warn">9 个待审核</span></div>
+            </div>
+          </section>
+        </div>
+        <footer class="modal-footer">
+          <button class="ghost-button" type="button" data-mail-prev>上一步</button>
+          <div class="footer-spacer"></div>
+          <button class="ghost-button" type="button" data-mail-connect-close>取消</button>
+          <button class="primary-button" type="button" data-mail-next>下一步</button>
+        </footer>
+      </section>
+    </div>
+  </div>
+  <script src="./hireos-tasks-data.js"></script>
+  <script src="./hireos-pages.js?v=no-inbox-nav-v1"></script>
+</body>
+</html>
