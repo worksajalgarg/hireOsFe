@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">HireOS AI avatar</title>
+  <desc id="desc">Black and white illustrated recruiter assistant avatar.</desc>
+  <rect width="160" height="160" rx="40" fill="#f2f2f2"/>
+  <path d="M28 132c12-18 29-27 51-27 21 0 38 9 51 27v28H28v-28Z" fill="#050505"/>
+  <path d="M52 88c-7-7-10-18-8-34 2-20 16-33 40-37 22-4 39 4 46 21 6 14 4 33-6 48-9 14-22 22-38 22-14 0-26-7-34-20Z" fill="#fff"/>
+  <path d="M45 71c-8-1-12 4-10 12 2 8 8 13 16 15l4-21c-3-3-6-5-10-6Z" fill="#fff"/>
+  <path d="M44 59c-4-20 9-35 32-39 25-5 46 2 57 16-8 11-24 16-48 14-15-2-27 2-36 11l-5-2Z" fill="#050505"/>
+  <path d="M47 52c-5-1-9 0-13 4 3-10 9-15 19-14l-6 10Z" fill="#050505"/>
+  <path d="M58 70c-3 14-2 28 5 40-12-5-20-13-23-24-3-12 3-18 18-16Z" fill="#050505"/>
+  <path d="M77 74c0 3-2 5-5 5s-5-2-5-5 2-5 5-5 5 2 5 5ZM112 73c0 3-2 5-5 5s-5-2-5-5 2-5 5-5 5 2 5 5Z" fill="#111"/>
+  <path d="M92 78c-4 8-5 15-3 19 2 3 6 3 11 0" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+  <path d="M74 61c-8-2-15 0-20 5M102 60c7-3 15-2 22 3" fill="none" stroke="#111" stroke-width="5" stroke-linecap="round"/>
+  <path d="M70 94c7 9 19 12 31 6" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="65" cy="91" r="8" fill="#ffb7c4" opacity=".65"/>
+  <circle cx="114" cy="90" r="7" fill="#ffb7c4" opacity=".5"/>
+</svg>
