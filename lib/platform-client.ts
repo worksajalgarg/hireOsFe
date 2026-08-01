@@ -115,10 +115,14 @@ export const platformClient = {
   removeMember: (userId: string) =>
     apiFetch(`/workspace/members/${userId}`, { method: "DELETE" }),
   getRoles: () => apiFetch<import("./types").RolesMatrix>("/roles"),
-  createInterviewSession: (candidateRef: string) =>
+  createInterviewSession: (params: {
+    candidateRef: string;
+    resumeContext?: string;
+    sessionType?: "candidate_interview" | "hiring_manager_discovery";
+  }) =>
     apiFetch<{ id: string; inviteUrl: string }>("/interviews", {
       method: "POST",
-      body: JSON.stringify({ candidateRef }),
+      body: JSON.stringify(params),
     }),
   joinInterview: (inviteToken: string) =>
     apiFetch<import("./types").JoinInterviewResponse>("/interviews/join", {
