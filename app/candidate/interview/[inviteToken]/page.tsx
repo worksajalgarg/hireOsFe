@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { platformClient } from "@/lib/platform-client";
 import type { JoinInterviewResponse } from "@/lib/types";
 import { InterviewControls } from "./interview-controls";
+import { LiveTranscript } from "./live-transcript";
 
 type ScreenState =
   | { step: "consent" }
@@ -122,6 +123,8 @@ export default function CandidateInterviewRoomPage() {
 function InterviewRoom() {
   const connectionState = useConnectionState();
   const { state: agentState } = useVoiceAssistant();
+  const [showCaptions, setShowCaptions] = useState(true);
+
   // Self-view only — the agent has no camera track (see worker.py's
   // AutoSubscribe.AUDIO_ONLY), so there is nothing to render for "the other
   // side." Never add a face/emotion overlay here.
@@ -129,21 +132,33 @@ function InterviewRoom() {
   const localCameraTrack = cameraTracks.find((t) => t.participant.isLocal);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-6 py-12 text-center">
+    <main className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center gap-5 px-6 py-8 text-center">
       <RoomAudioRenderer />
       {localCameraTrack ? (
         <VideoTrack
           trackRef={localCameraTrack}
-          className="h-48 w-36 rounded-2xl object-cover"
+          className="h-44 w-32 rounded-2xl object-cover shadow-lg border border-white/10"
         />
       ) : (
         <div
-          className="h-24 w-24 rounded-full bg-[var(--color-navy-hover)] transition-transform"
+          className="h-20 w-20 rounded-full bg-[var(--color-navy-hover)] transition-transform shadow-inner border border-white/10"
           style={{ transform: agentState === "speaking" ? "scale(1.08)" : "scale(1)" }}
           aria-hidden
         />
       )}
-      <p className="text-sm text-white/70">{describeState(connectionState, agentState)}</p>
+
+      <div className="flex flex-col items-center gap-2 w-full">
+        <p className="text-xs text-white/70">{describeState(connectionState, agentState)}</p>
+        <button
+          type="button"
+          onClick={() => setShowCaptions(!showCaptions)}
+          className="text-[11px] text-white/60 hover:text-white underline transition-colors"
+        >
+          {showCaptions ? "Hide Live Captions" : "Show Live Captions"}
+        </button>
+      </div>
+
+      <LiveTranscript isOpen={showCaptions} />
       <InterviewControls />
     </main>
   );

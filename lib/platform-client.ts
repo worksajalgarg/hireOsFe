@@ -119,6 +119,7 @@ export const platformClient = {
     candidateRef: string;
     resumeContext?: string;
     sessionType?: "candidate_interview" | "hiring_manager_discovery";
+    promptId?: string;
   }) =>
     apiFetch<{ id: string; inviteUrl: string }>("/interviews", {
       method: "POST",
@@ -129,4 +130,25 @@ export const platformClient = {
       method: "POST",
       body: JSON.stringify({ inviteToken }),
     }),
+  listPrompts: () =>
+    apiFetch<
+      Array<{
+        id: string;
+        title: string;
+        description?: string;
+        category: string;
+        conversationFlow?: string;
+        openingInstructions?: string;
+        silenceInstructions?: string;
+        systemBoundaries?: string;
+        isDefault: boolean;
+        createdAt: string;
+      }>
+    >("/prompts"),
+  getPrompt: (id: string) => apiFetch<Record<string, unknown>>(`/prompts/${id}`),
+  createPrompt: (body: Record<string, unknown>) =>
+    apiFetch<Record<string, unknown>>("/prompts", { method: "POST", body: JSON.stringify(body) }),
+  updatePrompt: (id: string, body: Record<string, unknown>) =>
+    apiFetch<Record<string, unknown>>(`/prompts/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deletePrompt: (id: string) => apiFetch<{ deleted: boolean }>(`/prompts/${id}`, { method: "DELETE" }),
 };
