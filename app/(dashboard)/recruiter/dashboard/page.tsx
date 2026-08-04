@@ -71,7 +71,7 @@ export default function RecruiterDashboardPage() {
   };
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
+    <div className="max-w-2xl">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-gray-900">Recruiter dashboard</h1>
@@ -183,6 +183,6 @@ export default function RecruiterDashboardPage() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

@@ -116,7 +116,7 @@ export default function PromptsManagementPage() {
   };
 
   return (
-    <main className="mx-auto max-w-5xl p-8">
+    <div className="max-w-5xl">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
@@ -372,6 +372,6 @@ export default function PromptsManagementPage() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
