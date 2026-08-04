@@ -13,7 +13,7 @@ If a task looks like it needs a database query, a new API endpoint, tenant/RBAC 
 An enterprise hiring intelligence platform: recruiters define roles, candidates get evidence-based resume + AI voice-interview assessments, and humans make the final call. Three experiences live in `app/`:
 - `app/recruiter/dashboard` — candidate review, evidence, shortlisting.
 - `app/admin/dashboard` — tenant/user management, audit log views.
-- `app/candidate/interview` — the candidate-facing voice interview UI (not yet implemented — backend voice runtime is a later milestone).
+- `app/candidate/interview/[inviteToken]` — the candidate-facing AI voice interview UI, connected to LiveKit (`livekit-client`/`@livekit/components-react`). Currently a narrow POC: one screen (consent + mic permission + live room), not the full FR-501–508 flow (dedicated Device Check/Failure-recovery/Completion screens still land with the Sprint 4/6 build-out). No session-cookie auth — the candidate joins via a single-use invite token in the URL, validated server-side by `hireOsBe`'s `POST /interviews/join`.
 
 ## UI constraints that come from the product's Responsible AI requirements
 
@@ -24,5 +24,5 @@ These aren't optional styling choices — they reflect hard requirements from th
 
 ## Integration with hireOsBe
 
-- `lib/platform-client.ts` is the **only** place that talks to the backend. It reads `PLATFORM_API_URL` (see `.env.example`) and passes tenant/actor identity via headers (`x-tenant-id`, `x-actor-id`, `x-actor-role`) — there is no session-based auth yet on either side.
-- `lib/types/` is a **hand-maintained duplicate** of `hireOsBe/platform/src/common/types`. If you change a shared type here, make the same change in hireOsBe (and vice versa) — there is no automated sync or shared package between the two repos at this stage.
+- `lib/platform-client.ts` is the **only** place that talks to the backend. It reads `NEXT_PUBLIC_PLATFORM_API_URL` (see `.env.example`) and authenticates recruiter/admin requests with a Bearer token (stored in `sessionStorage`, set via `setAccessToken`) — there is no cookie-session auth on either side. The candidate interview flow (`joinInterview`) is the one deliberate exception: it's unauthenticated, using a single-use invite token in the URL instead, validated server-side.
+- `lib/types/` is a **hand-maintained duplicate** of `hireOsBe/platform/src/common/types`. If you change a shared type here (`Tenant`, `User`, `AuditEvent`, `CandidateEvaluation`, `InterviewSession`), make the same change in hireOsBe (and vice versa) — there is no automated sync or shared package between the two repos at this stage.
