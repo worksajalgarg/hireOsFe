@@ -35,3 +35,15 @@ jobs:
         # Next.js-bundled deps with no newer release available yet).
         run: npm audit --audit-level=high
         continue-on-error: true
+
+  deploy-web:
+    name: Deploy web (Vercel)
+    needs: web
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: npx vercel --prod --token "${{ secrets.VERCEL_TOKEN }}" --yes
