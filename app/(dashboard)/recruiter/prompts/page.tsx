@@ -49,6 +49,11 @@ export default function PromptsManagementPage() {
   };
 
   useEffect(() => {
+    // loadPrompts sets state only after its internal `await`, in the async
+    // continuation, not synchronously within this effect body; the rule
+    // can't see across that async boundary and flags the standard
+    // fetch-on-mount pattern.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadPrompts();
   }, []);
 

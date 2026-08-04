@@ -44,6 +44,11 @@ export default function LoginPage() {
     try {
       const result = await platformClient.login(values);
       setAccessToken(result.accessToken);
+      // document.cookie write happens inside an async submit handler after an
+      // await, not during render, so it's not a React-tracked mutation the
+      // compiler needs to guard against; the rule can't distinguish that
+      // statically.
+      // eslint-disable-next-line react-hooks/immutability
       document.cookie = "hireos_access_hint=1; path=/; max-age=86400; SameSite=Lax";
       router.push(getDefaultLandingPath(result.user.permissions));
     } catch (err) {
