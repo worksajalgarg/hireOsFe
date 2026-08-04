@@ -4,7 +4,9 @@ let accessToken: string | null = null;
 
 const API_BASE =
   (typeof process !== "undefined" && process.env.NEXT_PUBLIC_PLATFORM_API_URL) ||
-  "http://localhost:4000/api/v1";
+  (typeof window !== "undefined" && window.location.hostname !== "localhost"
+    ? "https://hire-os-be.vercel.app/api/v1"
+    : "http://localhost:4000/api/v1");
 
 export function setAccessToken(token: string | null) {
   accessToken = token;
