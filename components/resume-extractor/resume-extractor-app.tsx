@@ -76,9 +76,18 @@ export function ResumeExtractorApp() {
   });
 
   useEffect(() => {
+    setEditorText("");
+    setEditorError(null);
+    setSaveMessage(null);
+  }, [selectedId]);
+
+  useEffect(() => {
     if (!detail.data) return;
+    // Only populate when the API actually has JSON. Never clear on a null
+    // refetch — that races with SSE-seeded Working JSON right after extract.
     const json = detail.data.workingJson ?? detail.data.extractedJson;
-    setEditorText(json ? JSON.stringify(json, null, 2) : "");
+    if (!json) return;
+    setEditorText(JSON.stringify(json, null, 2));
     setEditorError(null);
     setSaveMessage(null);
   }, [detail.data]);
@@ -127,6 +136,7 @@ export function ResumeExtractorApp() {
     abortRef.current = controller;
 
     try {
+      let finalResume: Record<string, unknown> | null = null;
       await platformExtractResumeStream(
         selectedId,
         getAccessToken(),
@@ -136,9 +146,37 @@ export function ResumeExtractorApp() {
             return;
           }
           setStages((prev) => applyStageEvent(prev, event));
+          // Seed Working JSON as soon as Final JSON succeeds — don't wait on
+          // the post-stream refetch, which can leave the editor empty if the
+          // detail query is slow or still shows the pre-extract row.
+          if (
+            event.stage === "final_json" &&
+            event.status === "success" &&
+            event.data?.resume &&
+            typeof event.data.resume === "object" &&
+            !Array.isArray(event.data.resume)
+          ) {
+            finalResume = event.data.resume as Record<string, unknown>;
+            setEditorText(JSON.stringify(finalResume, null, 2));
+            setEditorError(null);
+            setSaveMessage(null);
+          }
         },
         controller.signal,
       );
+      if (finalResume) {
+        qc.setQueryData<ResumeDetail>(["resumes", selectedId], (prev) =>
+          prev
+            ? {
+                ...prev,
+                status: "EXTRACTED",
+                extractedJson: finalResume,
+                workingJson: finalResume,
+                errorMessage: null,
+              }
+            : prev,
+        );
+      }
       await qc.invalidateQueries({ queryKey: ["resumes"] });
       await qc.invalidateQueries({ queryKey: ["resumes", selectedId] });
     } catch (err) {
