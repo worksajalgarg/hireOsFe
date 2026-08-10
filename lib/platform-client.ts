@@ -26,7 +26,11 @@ export function getAccessToken() {
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
-  if (!headers.has("content-type") && init?.body) {
+  const isFormData = typeof FormData !== "undefined" && init?.body instanceof FormData;
+  if (!headers.has("content-type") && init?.body && !isFormData) {
+    // Never stamp a content-type on a FormData body — the browser needs to
+    // set it itself (with the multipart boundary), and doing it here breaks
+    // every file upload silently.
     headers.set("content-type", "application/json");
   }
   const token = getAccessToken();
@@ -153,4 +157,104 @@ export const platformClient = {
   updatePrompt: (id: string, body: Record<string, unknown>) =>
     apiFetch<Record<string, unknown>>(`/prompts/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   deletePrompt: (id: string) => apiFetch<{ deleted: boolean }>(`/prompts/${id}`, { method: "DELETE" }),
+
+  // ---- Job roles ----
+  listJobRoles: (params?: { status?: string; q?: string; cursor?: string; limit?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set("status", params.status);
+    if (params?.q) qs.set("q", params.q);
+    if (params?.cursor) qs.set("cursor", params.cursor);
+    if (params?.limit) qs.set("limit", String(params.limit));
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return apiFetch<import("./types").JobRole[]>(`/job-roles${suffix}`);
+  },
+  getJobRole: (id: string) => apiFetch<import("./types").JobRole>(`/job-roles/${id}`),
+  createJobRole: (body: {
+    title: string;
+    jdText: string;
+    department?: string;
+    location?: string;
+    employmentType?: string;
+    seniority?: string;
+  }) =>
+    apiFetch<import("./types").JobRole>("/job-roles", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  createJobRoleFromFile: (formData: FormData) =>
+    apiFetch<import("./types").JobRole>("/job-roles/upload", {
+      method: "POST",
+      body: formData,
+    }),
+  updateJobRole: (id: string, body: Record<string, unknown>) =>
+    apiFetch<import("./types").JobRole>(`/job-roles/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  setJobRoleStatus: (id: string, status: import("./types").JobRoleStatus) =>
+    apiFetch<import("./types").JobRole>(`/job-roles/${id}/status`, {
+      method: "POST",
+      body: JSON.stringify({ status }),
+    }),
+  reparseJobRole: (id: string) =>
+    apiFetch<import("./types").JobRole>(`/job-roles/${id}/reparse`, { method: "POST" }),
+  getJobRoleJdDownloadUrl: (id: string) =>
+    apiFetch<{ url: string }>(`/job-roles/${id}/jd-download`),
+
+  // ---- Resumes ----
+  // One file per call by design — the backend parses synchronously per
+  // request (see hireOsBe's implementation plan); the upload panel fans
+  // this out with bounded client-side concurrency for multi-file selections.
+  uploadResume: (jobRoleId: string, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiFetch<import("./types").Resume>(`/job-roles/${jobRoleId}/resumes`, {
+      method: "POST",
+      body: formData,
+    });
+  },
+  listResumes: (jobRoleId: string) =>
+    apiFetch<import("./types").Resume[]>(`/job-roles/${jobRoleId}/resumes`),
+  getResume: (id: string) => apiFetch<import("./types").Resume>(`/resumes/${id}`),
+  getResumeDownloadUrl: (id: string) => apiFetch<{ url: string }>(`/resumes/${id}/download`),
+  reparseResume: (id: string) =>
+    apiFetch<import("./types").Resume>(`/resumes/${id}/reparse`, { method: "POST" }),
+  deleteResume: (id: string) => apiFetch<{ deleted: boolean }>(`/resumes/${id}`, { method: "DELETE" }),
+
+  // ---- Candidates & pipeline ----
+  listPipeline: (jobRoleId: string) =>
+    apiFetch<Record<import("./types").ApplicationStage, import("./types").Application[]>>(
+      `/job-roles/${jobRoleId}/pipeline`,
+    ),
+  listCandidates: (params?: { q?: string; cursor?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set("q", params.q);
+    if (params?.cursor) qs.set("cursor", params.cursor);
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return apiFetch<import("./types").Candidate[]>(`/candidates${suffix}`);
+  },
+  getCandidate: (id: string) => apiFetch<import("./types").Candidate>(`/candidates/${id}`),
+  updateCandidate: (id: string, body: Record<string, unknown>) =>
+    apiFetch<import("./types").Candidate>(`/candidates/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  createApplication: (body: { candidateId: string; jobRoleId: string }) =>
+    apiFetch<import("./types").Application>("/applications", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  moveApplicationStage: (id: string, body: { toStage: import("./types").ApplicationStage; note?: string }) =>
+    apiFetch<import("./types").Application>(`/applications/${id}/stage`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  setApplicationDisposition: (
+    id: string,
+    body: { status: import("./types").ApplicationStatus; reason?: string },
+  ) =>
+    apiFetch<import("./types").Application>(`/applications/${id}/disposition`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
 };

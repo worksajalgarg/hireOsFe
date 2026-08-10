@@ -11,6 +11,12 @@ export const PERMISSIONS = {
   PROFILE_READ: "profile.read",
   PROFILE_WRITE: "profile.write",
   INTERVIEWS_MANAGE: "interviews.manage",
+  JOBS_READ: "jobs.read",
+  JOBS_WRITE: "jobs.write",
+  CANDIDATES_READ: "candidates.read",
+  CANDIDATES_WRITE: "candidates.write",
+  RESUMES_READ: "resumes.read",
+  RESUMES_UPLOAD: "resumes.upload",
 } as const;
 
 export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -42,6 +48,16 @@ export const APP_NAV: NavItem[] = [
     label: "Recruiter Dashboard",
     permission: PERMISSIONS.INTERVIEWS_MANAGE,
   },
+  {
+    href: "/recruiter/roles",
+    label: "Job Roles",
+    permission: PERMISSIONS.JOBS_READ,
+  },
+  {
+    href: "/recruiter/candidates",
+    label: "Candidates",
+    permission: PERMISSIONS.CANDIDATES_READ,
+  },
 ];
 
 export const SETTINGS_NAV: NavItem[] = [
@@ -67,6 +83,14 @@ export function filterNav(items: NavItem[], permissions?: string[]): NavItem[] {
 }
 
 export function canAccessPath(pathname: string, permissions?: string[]): boolean {
+  // Per-prefix checks, not a blanket /recruiter/* -> INTERVIEWS_MANAGE
+  // match — roles/candidates are gated on their own permission slugs.
+  if (pathname.startsWith("/recruiter/roles")) {
+    return hasPermission(permissions, PERMISSIONS.JOBS_READ);
+  }
+  if (pathname.startsWith("/recruiter/candidates")) {
+    return hasPermission(permissions, PERMISSIONS.CANDIDATES_READ);
+  }
   if (pathname === "/recruiter" || pathname.startsWith("/recruiter/")) {
     return hasPermission(permissions, PERMISSIONS.INTERVIEWS_MANAGE);
   }

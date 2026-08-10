@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Settings2 } from "lucide-react";
+import { Briefcase, LayoutDashboard, Settings2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   APP_NAV,
@@ -13,14 +13,16 @@ import {
 
 const ICONS: Record<string, typeof LayoutDashboard> = {
   "/recruiter/dashboard": LayoutDashboard,
+  "/recruiter/roles": Briefcase,
+  "/recruiter/candidates": Users,
 };
 
 function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
   const Icon = ICONS[item.href];
-  const active =
-    pathname === item.href ||
-    (item.href !== "/" && pathname.startsWith(`${item.href}/`)) ||
-    (item.href === "/recruiter/dashboard" && pathname.startsWith("/recruiter/"));
+  // Exact match or a real sub-path (item.href + "/...") only — no more
+  // blanket "any /recruiter/* lights up Dashboard" fallback now that there
+  // are multiple distinct /recruiter/* sections.
+  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
   return (
     <Link
