@@ -117,6 +117,44 @@ export const platformClient = {
   removeMember: (userId: string) =>
     apiFetch(`/workspace/members/${userId}`, { method: "DELETE" }),
   getRoles: () => apiFetch<import("./types").RolesMatrix>("/roles"),
+
+  listResumes: () => apiFetch<import("./types").ResumeListItem[]>("/resumes"),
+  getResume: (id: string) =>
+    apiFetch<import("./types").ResumeDetail>(`/resumes/${id}`),
+  uploadResume: async (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    const headers = new Headers();
+    const token = getAccessToken();
+    if (token) headers.set("authorization", `Bearer ${token}`);
+    const res = await fetch(`${API_BASE}/resumes`, {
+      method: "POST",
+      headers,
+      body: form,
+      credentials: "include",
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      let message = `Request failed (${res.status})`;
+      try {
+        const data = (await res.json()) as { message?: string | string[] };
+        if (Array.isArray(data.message)) message = data.message.join(", ");
+        else if (data.message) message = data.message;
+      } catch {
+        // ignore
+      }
+      throw new Error(message);
+    }
+    return (await res.json()) as import("./types").ResumeListItem;
+  },
+  updateResumeWorkingJson: (id: string, workingJson: Record<string, unknown>) =>
+    apiFetch<import("./types").ResumeDetail>(`/resumes/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ workingJson }),
+    }),
+  deleteResume: (id: string) =>
+    apiFetch<{ ok: boolean }>(`/resumes/${id}`, { method: "DELETE" }),
+
   createInterviewSession: (params: {
     candidateRef: string;
     resumeContext?: string;

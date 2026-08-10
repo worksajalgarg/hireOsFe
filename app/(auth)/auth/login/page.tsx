@@ -63,6 +63,7 @@ export default function LoginPage() {
       // Stub: exchange a placeholder code; real WorkOS wiring comes later
       const result = await platformClient.ssoCallback(provider, "email:admin@hireos.local");
       setAccessToken(result.accessToken);
+      document.cookie = "hireos_access_hint=1; path=/; max-age=86400; SameSite=Lax";
       router.push(getDefaultLandingPath(result.user.permissions));
     } catch (err) {
       setSsoMessage(err instanceof Error ? err.message : "SSO is not available yet");

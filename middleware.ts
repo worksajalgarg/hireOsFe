@@ -14,7 +14,15 @@ export function middleware(request: NextRequest) {
     // Allow through and let client redirect if needed — soft gate for UX.
   }
 
-  if (pathname === "/" ) {
+  if (
+    !isPublic &&
+    pathname.startsWith("/resumeExtractor") &&
+    !hasSessionHint
+  ) {
+    // Soft gate: allow through; client refresh/login handles hard auth.
+  }
+
+  if (pathname === "/") {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
@@ -22,5 +30,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/settings/:path*", "/auth/:path*"],
+  matcher: ["/", "/settings/:path*", "/auth/:path*", "/resumeExtractor", "/resumeExtractor/:path*"],
 };

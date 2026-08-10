@@ -36,6 +36,12 @@ export default function ProfileSettingsPage() {
     retry: false,
   });
 
+  useEffect(() => {
+    if (me.isError) {
+      router.push("/auth/login");
+    }
+  }, [me.isError, router]);
+
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
     values: {
@@ -78,7 +84,6 @@ export default function ProfileSettingsPage() {
   };
 
   if (me.isError) {
-    router.push("/auth/login");
     return null;
   }
 

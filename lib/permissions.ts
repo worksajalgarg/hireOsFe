@@ -10,6 +10,9 @@ export const PERMISSIONS = {
   AUDIT_READ: "audit.read",
   PROFILE_READ: "profile.read",
   PROFILE_WRITE: "profile.write",
+  RESUMES_READ: "resumes.read",
+  RESUMES_WRITE: "resumes.write",
+  RESUMES_EXTRACT: "resumes.extract",
   INTERVIEWS_MANAGE: "interviews.manage",
 } as const;
 
@@ -37,6 +40,11 @@ export type NavItem = {
 };
 
 export const APP_NAV: NavItem[] = [
+  {
+    href: "/resumeExtractor",
+    label: "Resume Extractor",
+    permission: [PERMISSIONS.RESUMES_READ, PERMISSIONS.RESUMES_EXTRACT],
+  },
   {
     href: "/recruiter/dashboard",
     label: "Recruiter Dashboard",

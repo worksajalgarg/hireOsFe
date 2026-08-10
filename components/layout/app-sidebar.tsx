@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Settings2 } from "lucide-react";
+import { FileText, LayoutDashboard, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   APP_NAV,
@@ -11,7 +11,8 @@ import {
   type NavItem,
 } from "@/lib/permissions";
 
-const ICONS: Record<string, typeof LayoutDashboard> = {
+const ICONS: Record<string, typeof FileText> = {
+  "/resumeExtractor": FileText,
   "/recruiter/dashboard": LayoutDashboard,
 };
 
