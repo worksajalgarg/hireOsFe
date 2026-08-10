@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, Settings2 } from "lucide-react";
+import { FileText, LayoutDashboard, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   APP_NAV,
@@ -13,13 +13,15 @@ import {
 
 const ICONS: Record<string, typeof FileText> = {
   "/resumeExtractor": FileText,
+  "/recruiter/dashboard": LayoutDashboard,
 };
 
 function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
   const Icon = ICONS[item.href];
   const active =
     pathname === item.href ||
-    (item.href !== "/" && pathname.startsWith(`${item.href}/`));
+    (item.href !== "/" && pathname.startsWith(`${item.href}/`)) ||
+    (item.href === "/recruiter/dashboard" && pathname.startsWith("/recruiter/"));
 
   return (
     <Link

@@ -8,3 +8,4 @@ node_modules.broken.root/
 .DS_Store
 coverage/
 tsconfig.tsbuildinfo
+.vercel

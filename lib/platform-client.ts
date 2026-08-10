@@ -4,7 +4,9 @@ let accessToken: string | null = null;
 
 const API_BASE =
   (typeof process !== "undefined" && process.env.NEXT_PUBLIC_PLATFORM_API_URL) ||
-  "http://localhost:4000/api/v1";
+  (typeof window !== "undefined" && window.location.hostname !== "localhost"
+    ? "https://hire-os-be.vercel.app/api/v1"
+    : "http://localhost:4000/api/v1");
 
 export function setAccessToken(token: string | null) {
   accessToken = token;
@@ -152,4 +154,41 @@ export const platformClient = {
     }),
   deleteResume: (id: string) =>
     apiFetch<{ ok: boolean }>(`/resumes/${id}`, { method: "DELETE" }),
+
+  createInterviewSession: (params: {
+    candidateRef: string;
+    resumeContext?: string;
+    sessionType?: "candidate_interview" | "hiring_manager_discovery";
+    promptId?: string;
+  }) =>
+    apiFetch<{ id: string; inviteUrl: string }>("/interviews", {
+      method: "POST",
+      body: JSON.stringify(params),
+    }),
+  joinInterview: (inviteToken: string) =>
+    apiFetch<import("./types").JoinInterviewResponse>("/interviews/join", {
+      method: "POST",
+      body: JSON.stringify({ inviteToken }),
+    }),
+  listPrompts: () =>
+    apiFetch<
+      Array<{
+        id: string;
+        title: string;
+        description?: string;
+        category: string;
+        conversationFlow?: string;
+        openingInstructions?: string;
+        silenceInstructions?: string;
+        systemBoundaries?: string;
+        isDefault: boolean;
+        createdAt: string;
+      }>
+    >("/prompts"),
+  getPrompt: (id: string) => apiFetch<Record<string, unknown>>(`/prompts/${id}`),
+  createPrompt: (body: Record<string, unknown>) =>
+    apiFetch<Record<string, unknown>>("/prompts", { method: "POST", body: JSON.stringify(body) }),
+  updatePrompt: (id: string, body: Record<string, unknown>) =>
+    apiFetch<Record<string, unknown>>(`/prompts/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deletePrompt: (id: string) => apiFetch<{ deleted: boolean }>(`/prompts/${id}`, { method: "DELETE" }),
 };

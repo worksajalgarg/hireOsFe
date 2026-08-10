@@ -6,8 +6,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { KeyRound } from "lucide-react";
-import { loginSchema } from "@/lib/schemas/auth";
 import { getDefaultLandingPath } from "@/lib/permissions";
+import { loginSchema } from "@/lib/schemas/auth";
 import { platformClient, setAccessToken } from "@/lib/platform-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,11 @@ export default function LoginPage() {
     try {
       const result = await platformClient.login(values);
       setAccessToken(result.accessToken);
+      // document.cookie write happens inside an async submit handler after an
+      // await, not during render, so it's not a React-tracked mutation the
+      // compiler needs to guard against; the rule can't distinguish that
+      // statically.
+      // eslint-disable-next-line react-hooks/immutability
       document.cookie = "hireos_access_hint=1; path=/; max-age=86400; SameSite=Lax";
       router.push(getDefaultLandingPath(result.user.permissions));
     } catch (err) {

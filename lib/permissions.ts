@@ -13,6 +13,7 @@ export const PERMISSIONS = {
   RESUMES_READ: "resumes.read",
   RESUMES_WRITE: "resumes.write",
   RESUMES_EXTRACT: "resumes.extract",
+  INTERVIEWS_MANAGE: "interviews.manage",
 } as const;
 
 export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -44,6 +45,11 @@ export const APP_NAV: NavItem[] = [
     label: "Resume Extractor",
     permission: [PERMISSIONS.RESUMES_READ, PERMISSIONS.RESUMES_EXTRACT],
   },
+  {
+    href: "/recruiter/dashboard",
+    label: "Recruiter Dashboard",
+    permission: PERMISSIONS.INTERVIEWS_MANAGE,
+  },
 ];
 
 export const SETTINGS_NAV: NavItem[] = [
@@ -69,6 +75,9 @@ export function filterNav(items: NavItem[], permissions?: string[]): NavItem[] {
 }
 
 export function canAccessPath(pathname: string, permissions?: string[]): boolean {
+  if (pathname === "/recruiter" || pathname.startsWith("/recruiter/")) {
+    return hasPermission(permissions, PERMISSIONS.INTERVIEWS_MANAGE);
+  }
   const item = ALL_NAV.find(
     (nav) => pathname === nav.href || pathname.startsWith(`${nav.href}/`),
   );
