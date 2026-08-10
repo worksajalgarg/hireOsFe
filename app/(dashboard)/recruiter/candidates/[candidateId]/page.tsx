@@ -12,7 +12,21 @@ import {
   ApplicationStatusBadge,
   ResumeStatusBadge,
 } from "@/components/recruiter/status-badges";
-import type { Resume } from "@/lib/types/resume";
+import type { Resume, UnparsedSection } from "@/lib/types/resume";
+
+// Same margin/heuristic as ai-service's resume_intelligence.py's
+// _has_substantial_content (_THIN_RAW_TEXT_MARGIN = 10) — used here only as
+// a fallback for extraction rows persisted before hasContent existed on
+// UnparsedSection, so a stale stored record (like the one that motivated
+// this fix) renders correctly immediately, without requiring a re-parse.
+// A row that already has hasContent (anything parsed from now on) always
+// trusts the backend's value instead of recomputing.
+function hasSubstantialContent(section: UnparsedSection): boolean {
+  if (typeof section.hasContent === "boolean") return section.hasContent;
+  const raw = section.rawText.trim();
+  const title = section.sectionTitle.trim();
+  return raw.length > 0 && raw.toLowerCase() !== title.toLowerCase() && raw.length > title.length + 10;
+}
 
 function ResumeEvidence({ resume, candidateId }: { resume: Resume; candidateId: string }) {
   const qc = useQueryClient();
@@ -44,7 +58,11 @@ function ResumeEvidence({ resume, candidateId }: { resume: Resume; candidateId: 
     <SectionCard title={resume.originalFilename}>
       <div className="mb-3 -mt-1 flex items-center justify-between">
         <ResumeStatusBadge status={resume.status} />
-        {resume.status === "PARSE_FAILED" && (
+        {/* Available whenever a parse isn't actively in flight — not just on
+            failure. A recruiter may want to retry a successful parse too
+            (e.g. after a backend fix, or if the extraction looks off),
+            not only recover from an error. */}
+        {resume.status !== "UPLOADED" && resume.status !== "PARSING" && (
           <Button size="sm" variant="outline" disabled={reparse.isPending} onClick={() => reparse.mutate()}>
             {reparse.isPending ? "Re-parsing…" : "Re-parse"}
           </Button>
@@ -160,21 +178,50 @@ function ResumeEvidence({ resume, candidateId }: { resume: Resume; candidateId: 
             </div>
           )}
 
-          {extraction.unparsedSections.length > 0 && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-800">
-                Could not confidently parse
-              </h4>
-              <div className="space-y-2">
-                {extraction.unparsedSections.map((s, i) => (
-                  <div key={i}>
-                    <p className="text-sm font-medium text-amber-900">{s.sectionTitle}</p>
-                    <p className="text-sm text-amber-800">{s.rawText}</p>
+          {(() => {
+            // Split, don't blanket-alarm: a substantial section the schema
+            // just doesn't have a field for (e.g. "Volunteering",
+            // "Coursework" — any unmodeled-but-real section, on any resume)
+            // is real, successfully-extracted data, not a parsing failure.
+            // Only genuinely thin/ambiguous entries earn the amber warning.
+            const additionalSections = extraction.unparsedSections.filter(hasSubstantialContent);
+            const uncertainSections = extraction.unparsedSections.filter((s) => !hasSubstantialContent(s));
+            return (
+              <>
+                {additionalSections.length > 0 && (
+                  <div>
+                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Additional sections
+                    </h4>
+                    <div className="space-y-2">
+                      {additionalSections.map((s, i) => (
+                        <div key={i}>
+                          <p className="text-sm font-medium text-gray-900">{s.sectionTitle}</p>
+                          <p className="text-sm whitespace-pre-line text-gray-600">{s.rawText}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                )}
+
+                {uncertainSections.length > 0 && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
+                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-800">
+                      Could not confidently parse
+                    </h4>
+                    <div className="space-y-2">
+                      {uncertainSections.map((s, i) => (
+                        <div key={i}>
+                          <p className="text-sm font-medium text-amber-900">{s.sectionTitle}</p>
+                          <p className="text-sm text-amber-800">{s.rawText}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       )}
     </SectionCard>

@@ -1,8 +1,9 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { platformClient } from "@/lib/platform-client";
+import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { ResumeUploadPanel } from "@/components/recruiter/resume-upload-panel";
 import { ResumeStatusBadge } from "@/components/recruiter/status-badges";
@@ -17,6 +18,16 @@ export default function JobRoleResumesPage() {
     queryFn: () => platformClient.listResumes(params.roleId),
     refetchInterval: (q) =>
       q.state.data?.some((r) => r.status === "UPLOADED" || r.status === "PARSING") ? 3000 : false,
+  });
+
+  // A resume that fails to parse never gets a candidateId (see
+  // candidate-linking.service.ts — linking only runs on a successful
+  // extraction), so it never appears on any candidate detail page — this
+  // table is the only place it's visible at all, and the only place a
+  // Re-parse action for it can live.
+  const reparse = useMutation({
+    mutationFn: (id: string) => platformClient.reparseResume(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["resumes", params.roleId] }),
   });
 
   return (
@@ -53,6 +64,21 @@ export default function JobRoleResumesPage() {
                 Download
               </button>
             ),
+          },
+          {
+            key: "reparse",
+            header: "",
+            render: (r) =>
+              r.status !== "UPLOADED" && r.status !== "PARSING" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={reparse.isPending && reparse.variables === r.id}
+                  onClick={() => reparse.mutate(r.id)}
+                >
+                  {reparse.isPending && reparse.variables === r.id ? "Re-parsing…" : "Re-parse"}
+                </Button>
+              ) : null,
           },
         ]}
       />
